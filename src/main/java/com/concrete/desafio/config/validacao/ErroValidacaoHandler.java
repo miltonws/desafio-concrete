@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.concrete.desafio.exception.ExceptionEmailNaoExiste;
 import com.concrete.desafio.exception.ExceptionNaoAutorizado;
+import com.concrete.desafio.exception.ExceptionSessaoInvalida;
 import com.concrete.desafio.exception.ExceptionUsuarioSenhaInvalidos;
 
 @RestControllerAdvice
@@ -71,6 +72,18 @@ public class ErroValidacaoHandler {
 
 		return dto;
 	}
+	
+	@ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+	@ExceptionHandler(ExceptionSessaoInvalida.class)
+	public ErroDTO handle(ExceptionSessaoInvalida exception) {
+		ErroDTO dto = new ErroDTO();
+		
+		String mensagem = "Sessão inválida";
+		dto.setMensagem(mensagem);
+
+		return dto;
+	}
+
 	
 	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(Exception.class)

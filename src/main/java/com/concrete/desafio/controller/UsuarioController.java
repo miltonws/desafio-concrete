@@ -20,6 +20,7 @@ import com.concrete.desafio.controller.dto.UsuarioDTO;
 import com.concrete.desafio.controller.form.UsuarioForm;
 import com.concrete.desafio.exception.ExceptionEmailNaoExiste;
 import com.concrete.desafio.exception.ExceptionNaoAutorizado;
+import com.concrete.desafio.exception.ExceptionSessaoInvalida;
 import com.concrete.desafio.service.UsuarioService;
 
 @RestController
@@ -43,7 +44,7 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<UsuarioDTO> detalhar(@PathVariable Long id, @RequestHeader String Authorization) throws ExceptionNaoAutorizado {
+	public ResponseEntity<UsuarioDTO> detalhar(@PathVariable Long id, @RequestHeader String Authorization) throws ExceptionNaoAutorizado, ExceptionSessaoInvalida {
 		UsuarioDTO detalharUsuario = usuarioService.detalharUsuario(id, Authorization);
 
 		if (detalharUsuario == null) {

@@ -14,6 +14,7 @@ import com.concrete.desafio.controller.form.UsuarioForm;
 import com.concrete.desafio.exception.ExceptionEmailNaoExiste;
 import com.concrete.desafio.exception.ExceptionIdInvalido;
 import com.concrete.desafio.exception.ExceptionNaoAutorizado;
+import com.concrete.desafio.exception.ExceptionSessaoInvalida;
 import com.concrete.desafio.modelo.Telefone;
 import com.concrete.desafio.modelo.Usuario;
 import com.concrete.desafio.repository.TelefoneRepository;
@@ -68,14 +69,22 @@ public class UsarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	public UsuarioDTO detalharUsuario(Long id, String Authorization) throws ExceptionNaoAutorizado {
+	public UsuarioDTO detalharUsuario(Long id, String Authorization) throws ExceptionNaoAutorizado, ExceptionSessaoInvalida {
 		Usuario usuarioToken = usuarioRepository.findByToken(Authorization);
 		UsuarioDTO resposta = null;
 
 		if (usuarioToken != null) {
 			Optional<Usuario> usuarioId = usuarioRepository.findById(id);
 			if (usuarioId.isPresent() && usuarioId.get().getToken().equals(usuarioToken.getToken())) {
-				resposta = new UsuarioDTO(usuarioId.get());
+				
+				LocalDateTime horaAtualMenosTrinta = LocalDateTime.now().plusMinutes(-30);
+				
+				if(usuarioId.get().getUltimo_login().isBefore(horaAtualMenosTrinta)) {
+					resposta = new UsuarioDTO(usuarioId.get());					
+				}else {
+					throw new ExceptionSessaoInvalida();
+				}
+				
 			} else {
 				throw new ExceptionNaoAutorizado();
 			}
