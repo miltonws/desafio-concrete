@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.concrete.desafio.exception.ExceptionEmailNaoExiste;
+import com.concrete.desafio.exception.ExceptionNaoAutorizado;
 import com.concrete.desafio.exception.ExceptionUsuarioSenhaInvalidos;
 
 @RestControllerAdvice
@@ -55,6 +56,28 @@ public class ErroValidacaoHandler {
 		ErroDTO dto = new ErroDTO();
 		
 		String mensagem = "Usuário e/ou senha inválidos";
+		dto.setMensagem(mensagem);
+
+		return dto;
+	}
+	
+	@ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+	@ExceptionHandler(ExceptionNaoAutorizado.class)
+	public ErroDTO handle(ExceptionNaoAutorizado exception) {
+		ErroDTO dto = new ErroDTO();
+		
+		String mensagem = "Não autorizado";
+		dto.setMensagem(mensagem);
+
+		return dto;
+	}
+	
+	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(Exception.class)
+	public ErroDTO handle(Exception exception) {
+		ErroDTO dto = new ErroDTO();
+		
+		String mensagem = exception.getMessage().toString();
 		dto.setMensagem(mensagem);
 
 		return dto;

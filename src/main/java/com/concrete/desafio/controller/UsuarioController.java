@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.concrete.desafio.controller.dto.UsuarioDTO;
 import com.concrete.desafio.controller.form.UsuarioForm;
 import com.concrete.desafio.exception.ExceptionEmailNaoExiste;
+import com.concrete.desafio.exception.ExceptionNaoAutorizado;
 import com.concrete.desafio.service.UsuarioService;
 
 @RestController
@@ -41,8 +43,8 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<UsuarioDTO> detalhar(@PathVariable Long id) {
-		UsuarioDTO detalharUsuario = usuarioService.detalharUsuario(id);
+	public ResponseEntity<UsuarioDTO> detalhar(@PathVariable Long id, @RequestHeader String Authorization) throws ExceptionNaoAutorizado {
+		UsuarioDTO detalharUsuario = usuarioService.detalharUsuario(id, Authorization);
 
 		if (detalharUsuario == null) {
 			return ResponseEntity.notFound().build();

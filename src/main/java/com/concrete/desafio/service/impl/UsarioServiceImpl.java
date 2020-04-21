@@ -1,6 +1,7 @@
 package com.concrete.desafio.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import com.concrete.desafio.controller.dto.UsuarioDTO;
 import com.concrete.desafio.controller.form.UsuarioForm;
 import com.concrete.desafio.exception.ExceptionEmailNaoExiste;
+import com.concrete.desafio.exception.ExceptionIdInvalido;
+import com.concrete.desafio.exception.ExceptionNaoAutorizado;
 import com.concrete.desafio.modelo.Telefone;
 import com.concrete.desafio.modelo.Usuario;
 import com.concrete.desafio.repository.TelefoneRepository;
@@ -18,24 +21,24 @@ import com.concrete.desafio.repository.UsuarioRepository;
 import com.concrete.desafio.service.UsuarioService;
 
 @Service
-public class UsarioServiceImpl implements UsuarioService{
+public class UsarioServiceImpl implements UsuarioService {
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
 	@Autowired
 	private TelefoneRepository telefoneRepository;
-	
+
 	@Autowired
 	private TokenService tokenService;
 
 	public UsuarioDTO registrarUsuario(UsuarioForm form) throws ExceptionEmailNaoExiste {
 		Usuario usuario = new Usuario();
 		Usuario existeUsuario = null;
-		
-		//verifica se ja existe email cadastrado
+
+		// verifica se ja existe email cadastrado
 		existeUsuario = usuarioRepository.findByEmail(form.getEmail());
-		if(existeUsuario != null) {
+		if (existeUsuario != null) {
 			throw new ExceptionEmailNaoExiste();
 		}
 
@@ -65,11 +68,19 @@ public class UsarioServiceImpl implements UsuarioService{
 	}
 
 	@Override
-	public UsuarioDTO detalharUsuario(Long id) {
-		Optional<Usuario> usuario = usuarioRepository.findById(id);
+	public UsuarioDTO detalharUsuario(Long id, String Authorization) throws ExceptionNaoAutorizado {
+		Usuario usuarioToken = usuarioRepository.findByToken(Authorization);
 		UsuarioDTO resposta = null;
-		if (usuario.isPresent()) {
-			resposta = new UsuarioDTO(usuario.get());
+
+		if (usuarioToken != null) {
+			Optional<Usuario> usuarioId = usuarioRepository.findById(id);
+			if (usuarioId.isPresent() && usuarioId.get().getToken().equals(usuarioToken.getToken())) {
+				resposta = new UsuarioDTO(usuarioId.get());
+			} else {
+				throw new ExceptionNaoAutorizado();
+			}
+		} else {
+			throw new ExceptionNaoAutorizado();
 		}
 
 		return resposta;
